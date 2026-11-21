@@ -276,24 +276,6 @@
       return function () { tweens.forEach(function (t) { if (t.scrollTrigger) t.scrollTrigger.kill(); t.kill(); }); };
     });
 
-    /* ---------- footer wordmark: height reveal + legal slide (scrub .05) ---------- */
-    var fFill = document.querySelector('.footer__fill');
-    var fWrap = document.querySelector('.footer__wordwrap');
-    var fWord = document.querySelector('.footer__word');
-    var fLegal = document.querySelector('.footer__base');
-    if (fFill && fWrap && fWord && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      var fOff = window.innerWidth >= 1024 ? 51 : 53;
-      gsap.fromTo(fWrap, { height: 0 }, {
-        height: function () { return fWord.offsetHeight; }, duration: 1, ease: 'none',
-        scrollTrigger: { trigger: fFill, start: 'top bottom-=' + fOff + 'px', end: 'bottom bottom-=' + fOff + 'px', scrub: .05, invalidateOnRefresh: true }
-      });
-      if (window.innerWidth >= 768 && fLegal) {
-        gsap.fromTo(fLegal, { y: function () { return -fFill.offsetHeight; } }, {
-          y: 0, duration: 1, ease: 'none',
-          scrollTrigger: { trigger: fFill, start: 'top bottom-=' + fOff + 'px', end: 'bottom bottom-=' + fOff + 'px', scrub: true, invalidateOnRefresh: true }
-        });
-      }
-    }
   } else {
     /* fallback: IntersectionObserver reveals */
     var rObs = new IntersectionObserver(function (entries) {
@@ -449,19 +431,6 @@
       form.reset();
     });
   });
-
-  /* ---------- cookie banner ---------- */
-  var banner = document.getElementById('cookies');
-  var KEY = 'kapiloka-cookie-consent';
-  var seen = null;
-  try { seen = localStorage.getItem(KEY); } catch (err) {}
-  if (!seen && banner) {
-    setTimeout(function () { banner.hidden = false; }, 1400);
-    document.getElementById('cookieOk').addEventListener('click', function () {
-      try { localStorage.setItem(KEY, '1;max-age=' + 365 * 24 * 3600); } catch (err) {}
-      banner.hidden = true;
-    });
-  }
 
   /* refresh triggers once images settle */
   window.addEventListener('load', function () {

@@ -1,12 +1,12 @@
-/* Malgudi — own-code 3D brass tumbler & davara scene (three.js).
+/* Kapiloka — own-code 3D brass tumbler & davara scene (three.js).
    Geometry: LatheGeometry profiles written for this build. Brass PBR material,
    RoomEnvironment studio lighting. State is driven externally (GSAP scrub):
    rotation (deg), colour tint lerp, front/back logo decal opacity, camera orbit. */
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
-const BRASS_WHITE = new THREE.Color('#f9f7f7'); /* reference scroll start tint */
-const BRASS_GREEN = new THREE.Color('#afab8e'); /* reference scroll end tint */
+const BRASS_WHITE = new THREE.Color('#f8faf3'); /* reference scroll start tint */
+const BRASS_GREEN = new THREE.Color('#a8bfa0'); /* reference scroll end tint */
 const BRASS_BASE = new THREE.Color('#c9973f');
 
 function lathe(points, segments = 128) {
@@ -23,7 +23,7 @@ function logoTexture() {
   g.textAlign = 'center';
   g.textBaseline = 'middle';
   g.font = '800 64px "Unbounded", "Arial Black", sans-serif';
-  g.fillText('MALGUDI', 256, 104);
+  g.fillText('KAPILOKA', 256, 104);
   g.font = '700 30px "Courier Prime", monospace';
   g.fillText('· K A A P I ·', 256, 168);
   const tex = new THREE.CanvasTexture(c);

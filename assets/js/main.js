@@ -1,4 +1,4 @@
-/* Malgudi Coffee House — own-code behaviour layer.
+/* Kapiloka Coffee House — own-code behaviour layer.
    Motion spec: measured values from the reference dossier (easings, durations, scrub model). */
 (function () {
   'use strict';
@@ -441,9 +441,9 @@
       var status = form.querySelector('[data-status]');
       if (!ok) { status.textContent = ''; return; }
       try {
-        var plans = JSON.parse(localStorage.getItem('malgudi-visits') || '[]');
+        var plans = JSON.parse(localStorage.getItem('kapiloka-visits') || '[]');
         plans.push({ name: name.value.trim(), phone: phone.value.trim(), date: form.querySelector('[name="date"]').value, time: form.querySelector('[name="time"]').value, saved: new Date().toISOString() });
-        localStorage.setItem('malgudi-visits', JSON.stringify(plans));
+        localStorage.setItem('kapiloka-visits', JSON.stringify(plans));
       } catch (err) {}
       status.textContent = 'Saved! See you at the counter, ' + name.value.trim().split(' ')[0] + ' — open daily 7:30 AM – 10:30 PM.';
       form.reset();
@@ -452,7 +452,7 @@
 
   /* ---------- cookie banner ---------- */
   var banner = document.getElementById('cookies');
-  var KEY = 'malgudi-cookie-consent';
+  var KEY = 'kapiloka-cookie-consent';
   var seen = null;
   try { seen = localStorage.getItem(KEY); } catch (err) {}
   if (!seen && banner) {

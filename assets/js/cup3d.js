@@ -1,4 +1,4 @@
-/* Malgudi — 3D cup driver (own code). Wires the brass tumbler scene to the
+/* Kapiloka — 3D cup driver (own code). Wires the brass tumbler scene to the
    reference's scrub model: rotation 0→180 while the figures section enters,
    colour tint white→green, front/back logo swap, then an exit timeline
    (+180° and offscreen drop from 35%) that ends exactly at formats top.

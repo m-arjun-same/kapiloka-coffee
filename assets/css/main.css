@@ -1,12 +1,12 @@
-/* Malgudi Coffee House — own-code build. Tokens & motion spec from measured reference values. */
+/* Kapiloka Coffee House — own-code build. Tokens & motion spec from measured reference values. */
 @font-face{font-family:"Inter Tight";src:url("../fonts/inter-tight-400.woff2") format("woff2");font-weight:400;font-display:swap}
 @font-face{font-family:"Inter Tight";src:url("../fonts/inter-tight-600.woff2") format("woff2");font-weight:600;font-display:swap}
 @font-face{font-family:"Courier Prime";src:url("../fonts/courier-prime-400.woff2") format("woff2");font-weight:400;font-display:swap}
 @font-face{font-family:"Unbounded";src:url("../fonts/unbounded-800.woff2") format("woff2");font-weight:800;font-display:swap}
 
 :root{
-  --black:#262626; --ivory:#f3f1e9; --white:#f9f7f7;
-  --orange:#df6341; --salmon:#de7e64; --brown:#a59171; --green:#afab8e;
+  --black:#17251f; --ivory:#e9efe4; --white:#f8faf3;
+  --orange:#0e7c6b; --salmon:#e3a72f; --brown:#77684f; --green:#a8bfa0;
   --font-base:"Inter Tight",system-ui,sans-serif;
   --font-accent:"Unbounded",sans-serif;
   --font-mono:"Courier Prime",monospace;

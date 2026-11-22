@@ -258,7 +258,7 @@ body.menu-open .header{color:var(--ivory)}
 .field__err.show{display:block}
 .consent{display:flex;gap:10px;align-items:flex-start;font-size:15px;cursor:pointer}
 .consent input{width:19px;height:19px;accent-color:var(--orange);margin-top:2px}
-.visit-form__status{font-weight:600;color:#3f6627}
+.visit-form__status{font-weight:600;color:#6a4fd0}
 
 /* footer */
 .footer{background:var(--black);color:var(--ivory);padding:72px 0 30px;overflow:hidden}

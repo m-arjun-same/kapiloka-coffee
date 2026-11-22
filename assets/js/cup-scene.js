@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 const TINT_START = new THREE.Color('#ffffff');
-const TINT_END = new THREE.Color('#d9e8cf');
+const TINT_END = new THREE.Color('#d9c8f2');
 const TEA_BASE = new THREE.Color('#b85c0d');
 
 function lathe(points, segments = 128) {

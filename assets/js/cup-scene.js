@@ -1,13 +1,13 @@
-/* Kapiloka — own-code 3D brass tumbler & davara scene (three.js).
-   Geometry: LatheGeometry profiles written for this build. Brass PBR material,
-   RoomEnvironment studio lighting. State is driven externally (GSAP scrub):
-   rotation (deg), colour tint lerp, front/back logo decal opacity, camera orbit. */
+/* Kapiloka — own-code 3D GLASS tea tumbler & glass saucer scene (three.js).
+   Clear glass (transparent physical material, high env reflection, thin rim),
+   amber tea visible inside, logo etched dark on the glass.
+   State driven externally (GSAP scrub): rotation, tint, logo swap, orbit. */
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
-const BRASS_WHITE = new THREE.Color('#f8faf3'); /* reference scroll start tint */
-const BRASS_GREEN = new THREE.Color('#a8bfa0'); /* reference scroll end tint */
-const BRASS_BASE = new THREE.Color('#c9973f');
+const TINT_START = new THREE.Color('#ffffff');
+const TINT_END = new THREE.Color('#d9e8cf');
+const TEA_BASE = new THREE.Color('#b85c0d');
 
 function lathe(points, segments = 128) {
   const pts = points.map(p => new THREE.Vector2(p[0], p[1]));
@@ -19,7 +19,7 @@ function logoTexture() {
   c.width = 512; c.height = 256;
   const g = c.getContext('2d');
   g.clearRect(0, 0, 512, 256);
-  g.fillStyle = '#f0dcae';
+  g.fillStyle = '#2a1408';
   g.textAlign = 'center';
   g.textBaseline = 'middle';
   g.font = '800 64px "Unbounded", "Arial Black", sans-serif';
@@ -39,7 +39,8 @@ export function createCupScene(canvas, opts = {}) {
   });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.18;
+  renderer.toneMappingExposure = 1.25;
+  renderer.sortObjects = true;
 
   const scene = new THREE.Scene();
   const pmrem = new THREE.PMREMGenerator(renderer);
@@ -47,63 +48,89 @@ export function createCupScene(canvas, opts = {}) {
 
   const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 50);
 
-  const key = new THREE.DirectionalLight(0xfff1da, 2.4);
+  const key = new THREE.DirectionalLight(0xfff1da, 2.6);
   key.position.set(2.5, 4.5, 2.5);
   scene.add(key);
-  const rim = new THREE.DirectionalLight(0xdfb98a, 1.1);
+  const rim = new THREE.DirectionalLight(0xffe9c4, 1.6);
   rim.position.set(-3, 2, -2.5);
   scene.add(rim);
-  scene.add(new THREE.AmbientLight(0xfff6e8, 0.35));
+  scene.add(new THREE.AmbientLight(0xfff6e8, 0.5));
 
-  const brass = new THREE.MeshStandardMaterial({
-    color: BRASS_BASE.clone().lerp(BRASS_WHITE, 0.4),
-    metalness: 1.0, roughness: 0.19, envMapIntensity: 1.4,
-    side: THREE.DoubleSide
+  /* proper glass: clear, see-through, glossy reflections — not metal, not opaque */
+  const glass = new THREE.MeshPhysicalMaterial({
+    color: 0xffffff, metalness: 0, roughness: 0.05,
+    transparent: true, opacity: 0.26, envMapIntensity: 2.2,
+    clearcoat: 1, clearcoatRoughness: 0.06, ior: 1.5,
+    side: THREE.DoubleSide, depthWrite: false
+  });
+  /* brighter glass edge so the rim and silhouette read as real glass */
+  const glassEdge = new THREE.MeshPhysicalMaterial({
+    color: 0xffffff, metalness: 0, roughness: 0.02,
+    transparent: true, opacity: 0.65, envMapIntensity: 2.6,
+    clearcoat: 1, side: THREE.DoubleSide, depthWrite: false
   });
 
   const spin = new THREE.Group();
   scene.add(spin);
 
-  /* davara — wide shallow bowl, profile walks out the underside and back in */
-  const davara = new THREE.Mesh(lathe([
+  /* glass saucer (davara shape, in glass) */
+  const saucer = new THREE.Mesh(lathe([
     [0.0, 0.0], [0.28, 0.0], [0.32, 0.016], [0.48, 0.05], [0.66, 0.112],
     [0.76, 0.2], [0.775, 0.226], [0.75, 0.232], [0.675, 0.18],
     [0.48, 0.106], [0.28, 0.082], [0.0, 0.078]
-  ]), brass);
-  spin.add(davara);
+  ]), glass);
+  saucer.renderOrder = 3;
+  spin.add(saucer);
+  const saucerRim = new THREE.Mesh(new THREE.TorusGeometry(0.762, 0.012, 12, 128), glassEdge);
+  saucerRim.rotation.x = Math.PI / 2; saucerRim.position.y = 0.222; saucerRim.renderOrder = 4;
+  spin.add(saucerRim);
 
-  /* tumbler — flared South-Indian kaapi tumbler sitting in the davara */
+  /* tea inside — amber liquid, slightly smaller than the glass, filled to near top */
+  const tea = new THREE.Mesh(lathe([
+    [0.0, 0.16], [0.225, 0.16], [0.25, 0.2], [0.272, 0.42], [0.295, 0.62], [0.322, 0.74], [0.0, 0.74]
+  ]), new THREE.MeshPhysicalMaterial({
+    color: TEA_BASE.clone(), roughness: 0.15, metalness: 0,
+    transparent: true, opacity: 0.94, clearcoat: 0.6, envMapIntensity: 0.7
+  }));
+  tea.renderOrder = 1;
+  spin.add(tea);
+  /* tea top surface — lighter, glossy, with a soft froth patch */
+  const teaTop = new THREE.Mesh(
+    new THREE.CircleGeometry(0.322, 64),
+    new THREE.MeshPhysicalMaterial({ color: 0xd9821e, roughness: 0.12, clearcoat: 1, envMapIntensity: 1.2 })
+  );
+  teaTop.rotation.x = -Math.PI / 2; teaTop.position.y = 0.741; teaTop.renderOrder = 2;
+  spin.add(teaTop);
+  const froth = new THREE.Mesh(
+    new THREE.CircleGeometry(0.17, 48),
+    new THREE.MeshStandardMaterial({ color: 0xf3c98a, roughness: 0.55, transparent: true, opacity: 0.5 })
+  );
+  froth.rotation.x = -Math.PI / 2; froth.position.set(0.05, 0.743, 0.03); froth.renderOrder = 2;
+  spin.add(froth);
+
+  /* glass tumbler over the tea — flared cutting-chai glass shape */
   const tumbler = new THREE.Mesh(lathe([
     [0.0, 0.1], [0.252, 0.1], [0.278, 0.128], [0.296, 0.34], [0.318, 0.58],
     [0.352, 0.78], [0.362, 0.812], [0.35, 0.822], [0.33, 0.792],
     [0.3, 0.56], [0.272, 0.3], [0.238, 0.158], [0.0, 0.148]
-  ]), brass);
+  ]), glass);
+  tumbler.renderOrder = 4;
   spin.add(tumbler);
+  const lip = new THREE.Mesh(new THREE.TorusGeometry(0.356, 0.011, 12, 128), glassEdge);
+  lip.rotation.x = Math.PI / 2; lip.position.y = 0.815; lip.renderOrder = 5;
+  spin.add(lip);
+  const baseRing = new THREE.Mesh(new THREE.TorusGeometry(0.262, 0.01, 12, 96), glassEdge);
+  baseRing.rotation.x = Math.PI / 2; baseRing.position.y = 0.115; baseRing.renderOrder = 5;
+  spin.add(baseRing);
 
-  /* coffee surface + froth */
-  const coffee = new THREE.Mesh(
-    new THREE.CircleGeometry(0.332, 64),
-    new THREE.MeshStandardMaterial({ color: 0x2a160b, roughness: 0.22, metalness: 0.0 })
-  );
-  coffee.rotation.x = -Math.PI / 2;
-  coffee.position.y = 0.782;
-  spin.add(coffee);
-  const froth = new THREE.Mesh(
-    new THREE.CircleGeometry(0.2, 48),
-    new THREE.MeshStandardMaterial({ color: 0x7a4a22, roughness: 0.6, transparent: true, opacity: 0.4 })
-  );
-  froth.rotation.x = -Math.PI / 2;
-  froth.position.set(0.05, 0.784, 0.03);
-  spin.add(froth);
-
-  /* front / back printed logos (opacity swapped by scroll, like the reference) */
+  /* front / back etched logos (opacity swapped by scroll) */
   const logoTex = logoTexture();
   function decal(thetaStart) {
     const m = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.337, 0.312, 0.3, 32, 1, true, thetaStart, 1.5),
+      new THREE.CylinderGeometry(0.34, 0.315, 0.3, 32, 1, true, thetaStart, 1.5),
       new THREE.MeshBasicMaterial({ map: logoTex, transparent: true, opacity: 0, depthWrite: false })
     );
-    m.position.y = 0.47;
+    m.position.y = 0.47; m.renderOrder = 6;
     return m;
   }
   const frontLogo = decal(-0.75);
@@ -111,19 +138,16 @@ export function createCupScene(canvas, opts = {}) {
   spin.add(frontLogo, backLogo);
 
   const state = {
-    rotation: 0,          /* deg, turntable Y */
-    colorMix: 0,          /* 0 = white tint, 1 = green tint */
-    frontOpacity: 1,
-    backOpacity: 0,
-    orbitYaw: -20,        /* deg azimuth */
-    orbitPitch: 75        /* deg polar */
+    rotation: 0, colorMix: 0, frontOpacity: 1, backOpacity: 0,
+    orbitYaw: -20, orbitPitch: 75
   };
   const tint = new THREE.Color();
 
   function applyState() {
     spin.rotation.y = THREE.MathUtils.degToRad(state.rotation);
-    tint.copy(BRASS_WHITE).lerp(BRASS_GREEN, state.colorMix);
-    brass.color.copy(BRASS_BASE).lerp(tint, 0.4);
+    tint.copy(TINT_START).lerp(TINT_END, state.colorMix);
+    glass.color.copy(tint);
+    tea.material.color.copy(TEA_BASE).lerp(new THREE.Color('#8f430a'), state.colorMix * 0.5);
     frontLogo.material.opacity = state.frontOpacity;
     backLogo.material.opacity = state.backOpacity;
     const phi = THREE.MathUtils.degToRad(state.orbitPitch);
@@ -143,10 +167,7 @@ export function createCupScene(canvas, opts = {}) {
     camera.updateProjectionMatrix();
   }
 
-  function render() {
-    applyState();
-    renderer.render(scene, camera);
-  }
+  function render() { applyState(); renderer.render(scene, camera); }
 
   applyState();
   return { state, render, resize, renderer, scene, camera };

@@ -74,7 +74,7 @@ body.menu-open .header{color:var(--ivory)}
 .menu__map{color:var(--orange);font-weight:600}
 
 /* hero */
-.hero{background:var(--black);color:var(--ivory);min-height:var(--screen);display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden;padding-top:120px}
+.hero{background:radial-gradient(1100px 620px at 68% 38%,#6b3a1e 0%,#422412 46%,#241105 100%);color:#f7e8c9;min-height:var(--screen);display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden;padding-top:120px}
 .hero__inner{width:100%;padding-bottom:32px}
 .hero__title{font-family:var(--font-accent);font-weight:800;text-transform:uppercase;line-height:.95;letter-spacing:-.03em;font-size:clamp(2.4rem,6vw,6.25rem);max-width:20ch;margin:.3em 0 .6em}
 .hero__row{display:flex;flex-wrap:wrap;gap:28px 64px;align-items:flex-start;justify-content:space-between}
@@ -98,9 +98,9 @@ body.menu-open .header{color:var(--ivory)}
 @media(min-width:768px){.cup3d-float{animation:heroCupFloat 5s ease-in-out infinite;will-change:transform}}
 @keyframes heroCupFloat{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
 @media(max-width:767.98px){
-  .cup3d{width:100%;height:auto;display:flex;align-items:center;justify-content:center}
-  .cup3d__canvas{display:none}
-  .cup3d__seq{display:block;width:min(88vw,480px);height:auto}
+  .cup3d{width:min(88vw,480px);height:min(88vw,480px);display:flex;align-items:center;justify-content:center}
+  .cup3d__canvas{display:block}
+  .cup3d__seq{display:none}
 }
 
 /* package flight cup */

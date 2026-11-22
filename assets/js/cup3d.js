@@ -3,7 +3,7 @@
    colour tint white→green, front/back logo swap, then an exit timeline
    (+180° and offscreen drop from 35%) that ends exactly at formats top.
    A second instance flies through the package section (170°→530°). */
-import { createCupScene } from './cup-scene.js';
+import { createCupScene } from './cup-scene.js?v=glass1';
 
 const gsap = window.gsap;
 const ScrollTrigger = window.ScrollTrigger;
@@ -16,7 +16,7 @@ function init() {
   /* reload when crossing the 768 mode switch, like the reference */
   const mode = window.matchMedia('(min-width: 768px)');
   mode.addEventListener && mode.addEventListener('change', () => window.location.reload());
-  if (!mode.matches) return; /* mobile uses the frame sequence (main.js) */
+  /* mobile now uses the same live glass WebGL model (old brown frame sequence retired) */
 
   /* ---------------- hero cup ---------------- */
   const modelEl = document.getElementById('cup3d');

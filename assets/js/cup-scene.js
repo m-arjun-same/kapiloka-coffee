@@ -58,9 +58,10 @@ export function createCupScene(canvas, opts = {}) {
 
   /* proper glass: clear, see-through, glossy reflections — not metal, not opaque */
   const glass = new THREE.MeshPhysicalMaterial({
-    color: 0xffffff, metalness: 0, roughness: 0.05,
-    transparent: true, opacity: 0.26, envMapIntensity: 2.2,
-    clearcoat: 1, clearcoatRoughness: 0.06, ior: 1.5,
+    color: 0xffffff, metalness: 0, roughness: 0.03,
+    transparent: true, opacity: 0.16, envMapIntensity: 3.0,
+    clearcoat: 1, clearcoatRoughness: 0.03, ior: 1.5,
+    specularIntensity: 1.2,
     side: THREE.DoubleSide, depthWrite: false
   });
   /* brighter glass edge so the rim and silhouette read as real glass */
@@ -85,20 +86,56 @@ export function createCupScene(canvas, opts = {}) {
   saucerRim.rotation.x = Math.PI / 2; saucerRim.position.y = 0.222; saucerRim.renderOrder = 4;
   spin.add(saucerRim);
 
-  /* tea inside — amber liquid, slightly smaller than the glass, filled to near top */
+  /* real tea — vertical gradient like a real poured chai: deep reddish-brown
+     at the base, amber through the body, golden where light hits the top */
+  function teaTexture() {
+    const c = document.createElement('canvas'); c.width = 64; c.height = 256;
+    const g = c.getContext('2d');
+    const gr = g.createLinearGradient(0, 256, 0, 0);
+    gr.addColorStop(0, '#4a1e04'); gr.addColorStop(0.45, '#8a3f08');
+    gr.addColorStop(0.8, '#c06a12'); gr.addColorStop(1, '#e79a33');
+    g.fillStyle = gr; g.fillRect(0, 0, 64, 256);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+  }
   const tea = new THREE.Mesh(lathe([
     [0.0, 0.16], [0.225, 0.16], [0.25, 0.2], [0.272, 0.42], [0.295, 0.62], [0.322, 0.74], [0.0, 0.74]
   ]), new THREE.MeshPhysicalMaterial({
-    color: TEA_BASE.clone(), roughness: 0.15, metalness: 0,
-    transparent: true, opacity: 0.94, clearcoat: 0.6, envMapIntensity: 0.7
+    map: teaTexture(), roughness: 0.08, metalness: 0,
+    clearcoat: 1, clearcoatRoughness: 0.08, envMapIntensity: 1.1
   }));
   tea.renderOrder = 1;
   spin.add(tea);
   /* tea top surface — lighter, glossy, with a soft froth patch */
+  function teaTopTexture() {
+    const c = document.createElement('canvas'); c.width = c.height = 256;
+    const g = c.getContext('2d');
+    const gr = g.createRadialGradient(108, 108, 10, 128, 128, 128);
+    gr.addColorStop(0, '#eda83e'); gr.addColorStop(0.7, '#cf7716'); gr.addColorStop(1, '#a3540a');
+    g.fillStyle = gr; g.fillRect(0, 0, 256, 256);
+    g.fillStyle = 'rgba(255,230,180,0.75)';
+    for (let i = 0; i < 46; i++) { const a = Math.random() * 6.283, r = 104 + Math.random() * 18;
+      g.beginPath(); g.arc(128 + Math.cos(a) * r, 128 + Math.sin(a) * r, 1.5 + Math.random() * 2.6, 0, 6.283); g.fill(); }
+    for (let i = 0; i < 22; i++) { g.beginPath(); g.arc(40 + Math.random() * 176, 40 + Math.random() * 176, 1 + Math.random() * 1.8, 0, 6.283); g.fill(); }
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+  }
   const teaTop = new THREE.Mesh(
     new THREE.CircleGeometry(0.322, 64),
-    new THREE.MeshPhysicalMaterial({ color: 0xd9821e, roughness: 0.12, clearcoat: 1, envMapIntensity: 1.2 })
+    new THREE.MeshPhysicalMaterial({ map: teaTopTexture(), roughness: 0.06, clearcoat: 1, envMapIntensity: 1.5 })
   );
+  /* golden meniscus ring where tea meets glass */
+  const meniscus = new THREE.Mesh(new THREE.TorusGeometry(0.318, 0.007, 10, 96),
+    new THREE.MeshPhysicalMaterial({ color: 0xe79a33, roughness: 0.1, clearcoat: 1 }));
+  meniscus.rotation.x = Math.PI / 2; meniscus.position.y = 0.74; meniscus.renderOrder = 2;
+  spin.add(meniscus);
+  /* tiny bubbles rising in the tea */
+  const bubbles = new THREE.InstancedMesh(new THREE.SphereGeometry(0.008, 8, 8),
+    new THREE.MeshBasicMaterial({ color: 0xffe2b0, transparent: true, opacity: 0.4 }), 36);
+  { const d = new THREE.Object3D();
+    for (let i = 0; i < 36; i++) { const a = Math.random() * 6.283, r = Math.random() * 0.24;
+      d.position.set(Math.cos(a) * r, 0.22 + Math.random() * 0.46, Math.sin(a) * r);
+      const sc = 0.5 + Math.random(); d.scale.set(sc, sc, sc); d.updateMatrix(); bubbles.setMatrixAt(i, d.matrix); }
+    bubbles.renderOrder = 2; }
+  spin.add(bubbles);
   teaTop.rotation.x = -Math.PI / 2; teaTop.position.y = 0.741; teaTop.renderOrder = 2;
   spin.add(teaTop);
   const froth = new THREE.Mesh(
@@ -122,6 +159,23 @@ export function createCupScene(canvas, opts = {}) {
   const baseRing = new THREE.Mesh(new THREE.TorusGeometry(0.262, 0.01, 12, 96), glassEdge);
   baseRing.rotation.x = Math.PI / 2; baseRing.position.y = 0.115; baseRing.renderOrder = 5;
   spin.add(baseRing);
+
+  /* softbox shine streaks — the bright vertical reflections real glass shows */
+  function streakTexture() {
+    const c = document.createElement('canvas'); c.width = 128; c.height = 256;
+    const g = c.getContext('2d');
+    const gr = g.createLinearGradient(0, 0, 128, 0);
+    gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(0.5, 'rgba(255,255,255,0.95)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 128, 256);
+    const t = new THREE.CanvasTexture(c); return t;
+  }
+  const streakTex = streakTexture();
+  function streak(theta, w, op) {
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(0.345, 0.318, 0.58, 16, 1, true, theta, w),
+      new THREE.MeshBasicMaterial({ map: streakTex, transparent: true, opacity: op, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
+    m.position.y = 0.47; m.renderOrder = 5; return m;
+  }
+  spin.add(streak(-0.9, 0.5, 0.55), streak(2.2, 0.32, 0.3));
 
   /* front / back etched logos (opacity swapped by scroll) */
   const logoTex = logoTexture();
@@ -147,7 +201,7 @@ export function createCupScene(canvas, opts = {}) {
     spin.rotation.y = THREE.MathUtils.degToRad(state.rotation);
     tint.copy(TINT_START).lerp(TINT_END, state.colorMix);
     glass.color.copy(tint);
-    tea.material.color.copy(TEA_BASE).lerp(new THREE.Color('#8f430a'), state.colorMix * 0.5);
+    tea.material.color.setScalar(1 - state.colorMix * 0.12);
     frontLogo.material.opacity = state.frontOpacity;
     backLogo.material.opacity = state.backOpacity;
     const phi = THREE.MathUtils.degToRad(state.orbitPitch);

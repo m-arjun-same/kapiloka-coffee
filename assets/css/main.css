@@ -74,7 +74,7 @@ body.menu-open .header{color:var(--ivory)}
 .menu__map{color:var(--orange);font-weight:600}
 
 /* hero */
-.hero{background:radial-gradient(1100px 620px at 68% 38%,#6b3a1e 0%,#422412 46%,#241105 100%);color:#f7e8c9;min-height:var(--screen);display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden;padding-top:120px}
+.hero{background:linear-gradient(135deg,#a9cbe9 0%,#c3d4ee 26%,#d8c9e9 52%,#f2ccd9 79%,#f9e3cf 100%);color:var(--black);min-height:var(--screen);display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden;padding-top:120px}
 .hero__inner{width:100%;padding-bottom:32px}
 .hero__title{font-family:var(--font-accent);font-weight:800;text-transform:uppercase;line-height:.95;letter-spacing:-.03em;font-size:clamp(2.4rem,6vw,6.25rem);max-width:20ch;margin:.3em 0 .6em}
 .hero__row{display:flex;flex-wrap:wrap;gap:28px 64px;align-items:flex-start;justify-content:space-between}
@@ -82,9 +82,9 @@ body.menu-open .header{color:var(--ivory)}
 .hero__points li{display:flex;flex-direction:column;max-width:24ch}
 .hero__points strong{font-family:var(--font-accent);font-size:clamp(1.6rem,2.6vw,2.7rem);color:var(--orange);white-space:nowrap}
 .hero__points span{opacity:.8;font-size:15px}
-.hero__marquee{overflow:hidden;border-top:1px solid rgba(243,241,233,.18);padding-block:10px}
+.hero__marquee{overflow:hidden;border-top:1px solid rgba(23,37,31,.18);padding-block:10px}
 .hero__track{display:flex;gap:60px;width:max-content;animation:marquee 12s linear infinite}
-.hero__word{font-family:var(--font-accent);font-weight:800;font-size:clamp(90px,13vw,160px);line-height:1;letter-spacing:-.03em;color:transparent;-webkit-text-stroke:1.5px rgba(243,241,233,.55);white-space:nowrap}
+.hero__word{font-family:var(--font-accent);font-weight:800;font-size:clamp(90px,13vw,160px);line-height:1;letter-spacing:-.03em;color:transparent;-webkit-text-stroke:1.5px rgba(23,37,31,.42);white-space:nowrap}
 @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-33.333%)}}
 @media(min-width:1600px){.hero__track{animation:none}.hero__word{font-size:210px}}
 

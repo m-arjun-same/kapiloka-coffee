@@ -80,7 +80,8 @@ body.menu-open .header{color:var(--black)}
 
 /* hero */
 .hero{background:linear-gradient(180deg,#2f7fd0 0%,#5ea9e6 34%,#a5d3f7 68%,#eef7ff 100%);color:#fff;min-height:var(--screen);display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;padding:150px 0 110px}
-.hero__inner{width:100%;padding-bottom:32px;position:relative;z-index:2}
+.hero__inner{width:100%;padding-bottom:32px;position:relative;z-index:5}
+.hero__points{max-width:520px}
 .hero__cloud{position:absolute;border-radius:999px;background:#fff;filter:blur(38px);opacity:.55;pointer-events:none;animation:cloudDrift 14s ease-in-out infinite alternate}
 @keyframes cloudDrift{from{transform:translateX(-24px)}to{transform:translateX(24px)}}
 .hero__hey{font-size:clamp(1.05rem,1.6vw,1.3rem);font-weight:600;color:#fff;margin-bottom:10px}

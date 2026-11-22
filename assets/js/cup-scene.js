@@ -4,6 +4,7 @@
    State driven externally (GSAP scrub): rotation, tint, logo swap, orbit. */
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const TINT_START = new THREE.Color('#ffffff');
 const TINT_END = new THREE.Color('#d9c8f2');
@@ -73,6 +74,8 @@ export function createCupScene(canvas, opts = {}) {
 
   const spin = new THREE.Group();
   scene.add(spin);
+  const proc = new THREE.Group();
+  spin.add(proc);
 
   /* glass saucer (davara shape, in glass) */
   const saucer = new THREE.Mesh(lathe([
@@ -110,7 +113,7 @@ export function createCupScene(canvas, opts = {}) {
     clearcoat: 0.35, clearcoatRoughness: 0.25, envMapIntensity: 0.7
   }));
   tea.renderOrder = 1;
-  spin.add(tea);
+  proc.add(tea);
   /* tea top surface — lighter, glossy, with a soft froth patch */
   function teaTopTexture() {
     const c = document.createElement('canvas'); c.width = c.height = 256;
@@ -135,7 +138,7 @@ export function createCupScene(canvas, opts = {}) {
   const meniscus = new THREE.Mesh(new THREE.TorusGeometry(0.318, 0.007, 10, 96),
     new THREE.MeshPhysicalMaterial({ color: 0xe0aa64, roughness: 0.3, clearcoat: 1 }));
   meniscus.rotation.x = Math.PI / 2; meniscus.position.y = 0.74; meniscus.renderOrder = 2;
-  spin.add(meniscus);
+  proc.add(meniscus);
   /* tiny bubbles rising in the tea */
   const bubbles = new THREE.InstancedMesh(new THREE.SphereGeometry(0.008, 8, 8),
     new THREE.MeshBasicMaterial({ color: 0xf7e3c0, transparent: true, opacity: 0.32 }), 36);
@@ -144,15 +147,15 @@ export function createCupScene(canvas, opts = {}) {
       d.position.set(Math.cos(a) * r, 0.22 + Math.random() * 0.46, Math.sin(a) * r);
       const sc = 0.5 + Math.random(); d.scale.set(sc, sc, sc); d.updateMatrix(); bubbles.setMatrixAt(i, d.matrix); }
     bubbles.renderOrder = 2; }
-  spin.add(bubbles);
+  proc.add(bubbles);
   teaTop.rotation.x = -Math.PI / 2; teaTop.position.y = 0.741; teaTop.renderOrder = 2;
-  spin.add(teaTop);
+  proc.add(teaTop);
   const froth = new THREE.Mesh(
     new THREE.CircleGeometry(0.17, 48),
     new THREE.MeshStandardMaterial({ color: 0xf6e3bb, roughness: 0.6, transparent: true, opacity: 0.55 })
   );
   froth.rotation.x = -Math.PI / 2; froth.position.set(0.05, 0.743, 0.03); froth.renderOrder = 2;
-  spin.add(froth);
+  proc.add(froth);
 
 
   /* vertical flutes — displace lathe radii with a 12-lobed wave, fading out
@@ -176,13 +179,13 @@ export function createCupScene(canvas, opts = {}) {
     [0.3, 0.56], [0.272, 0.3], [0.238, 0.158], [0.0, 0.148]
    ]), 0.05), glass);
   tumbler.renderOrder = 4;
-  spin.add(tumbler);
+  proc.add(tumbler);
   const lip = new THREE.Mesh(new THREE.TorusGeometry(0.356, 0.011, 12, 128), glassEdge);
   lip.rotation.x = Math.PI / 2; lip.position.y = 0.815; lip.renderOrder = 5;
-  spin.add(lip);
+  proc.add(lip);
   const baseRing = new THREE.Mesh(new THREE.TorusGeometry(0.262, 0.01, 12, 96), glassEdge);
   baseRing.rotation.x = Math.PI / 2; baseRing.position.y = 0.115; baseRing.renderOrder = 5;
-  spin.add(baseRing);
+  proc.add(baseRing);
 
   /* softbox shine streaks — the bright vertical reflections real glass shows */
   function streakTexture() {
@@ -199,7 +202,7 @@ export function createCupScene(canvas, opts = {}) {
       new THREE.MeshBasicMaterial({ map: streakTex, transparent: true, opacity: op, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
     m.position.y = 0.47; m.renderOrder = 5; return m;
   }
-  spin.add(streak(-0.9, 0.5, 0.55), streak(2.2, 0.32, 0.3));
+  proc.add(streak(-0.9, 0.5, 0.55), streak(2.2, 0.32, 0.3));
 
   /* front / back etched logos (opacity swapped by scroll) */
   const logoTex = logoTexture();
@@ -213,7 +216,27 @@ export function createCupScene(canvas, opts = {}) {
   }
   const frontLogo = decal(-0.75);
   const backLogo = decal(Math.PI - 0.75);
-  spin.add(frontLogo, backLogo);
+  proc.add(frontLogo, backLogo);
+
+  /* real Indian chai glass model (Sketchfab, CC-BY bhagathgoud) — same
+     GLB-in-Three.js method as the Cafe Breizh croissant */
+  new GLTFLoader().load('assets/models/chai-glass.glb', (gltf) => {
+    const model = gltf.scene;
+  const drop = [];
+    model.traverse((o) => { if (/plane/i.test(o.name) || o.name === 'Cylinder002_9') drop.push(o); });
+    drop.forEach((o) => o.removeFromParent());
+    const fakeGlass = new THREE.MeshPhysicalMaterial({ color: 0xffffff, metalness: 0, roughness: 0.05, transparent: true, opacity: 0.13, envMapIntensity: 2.6, clearcoat: 1, clearcoatRoughness: 0.05, ior: 1.5, specularIntensity: 1.2, side: THREE.DoubleSide, depthWrite: false });
+    const fakeCond = new THREE.MeshPhysicalMaterial({ color: 0xffffff, metalness: 0, roughness: 0.15, transparent: true, opacity: 0.32, envMapIntensity: 2.0, clearcoat: 1, side: THREE.DoubleSide, depthWrite: false });
+    model.traverse((o) => { if (o.isMesh) { const mn = (o.material && o.material.name) || ''; if (mn.indexOf('Glass') === 0) { o.material = fakeGlass; o.renderOrder = 4; } else if (mn === 'Condensation') { o.material = fakeCond; o.renderOrder = 5; } else if (mn === 'Liquid') { o.scale.y = 1.3; o.position.y += 0.02; o.renderOrder = 1; } } });
+    const box = new THREE.Box3().setFromObject(model);
+    const size = box.getSize(new THREE.Vector3());
+    const sc = 0.8 / size.y;
+    model.scale.setScalar(sc);
+    const c = box.getCenter(new THREE.Vector3());
+    model.position.set(-c.x * sc, -box.min.y * sc + 0.02, -c.z * sc);
+    spin.add(model);
+    proc.visible = false;
+  });
 
   const state = {
     rotation: 0, colorMix: 0, frontOpacity: 1, backOpacity: 0,

@@ -89,17 +89,23 @@ export function createCupScene(canvas, opts = {}) {
   /* real tea — vertical gradient like a real poured chai: deep reddish-brown
      at the base, amber through the body, golden where light hits the top */
   function teaTexture() {
-    const c = document.createElement('canvas'); c.width = 64; c.height = 256;
+    const c = document.createElement('canvas'); c.width = 256; c.height = 256;
     const g = c.getContext('2d');
     const gr = g.createLinearGradient(0, 256, 0, 0);
     gr.addColorStop(0, '#8a4d20'); gr.addColorStop(0.45, '#b57a3e');
     gr.addColorStop(0.8, '#d29c5c'); gr.addColorStop(1, '#e6ba82');
-    g.fillStyle = gr; g.fillRect(0, 0, 64, 256);
+    g.fillStyle = gr; g.fillRect(0, 0, 256, 256);
+    for (let f = 0; f < 12; f++) {
+      const x0 = (f / 12) * 256;
+      const fg = g.createLinearGradient(x0, 0, x0 + 256 / 12, 0);
+      fg.addColorStop(0, 'rgba(70,35,8,0.20)'); fg.addColorStop(0.5, 'rgba(255,235,200,0.13)'); fg.addColorStop(1, 'rgba(70,35,8,0.20)');
+      g.fillStyle = fg; g.fillRect(x0, 30, 256 / 12, 226);
+    }
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
   }
   const tea = new THREE.Mesh(flute(lathe([
     [0.0, 0.16], [0.225, 0.16], [0.25, 0.2], [0.272, 0.42], [0.295, 0.62], [0.322, 0.74], [0.0, 0.74]
-  ]), 0.02), new THREE.MeshPhysicalMaterial({
+   ]), 0.045), new THREE.MeshPhysicalMaterial({
     map: teaTexture(), roughness: 0.34, metalness: 0,
     clearcoat: 0.35, clearcoatRoughness: 0.25, envMapIntensity: 0.7
   }));
@@ -112,14 +118,12 @@ export function createCupScene(canvas, opts = {}) {
     const gr = g.createRadialGradient(108, 108, 10, 128, 128, 128);
     gr.addColorStop(0, '#eec894'); gr.addColorStop(0.7, '#dfae72'); gr.addColorStop(1, '#cf9455');
     g.fillStyle = gr; g.fillRect(0, 0, 256, 256);
-    g.strokeStyle = 'rgba(247,232,203,0.9)'; g.lineWidth = 17;
-    g.beginPath(); g.arc(128, 128, 112, 0, 6.283); g.stroke();
-    g.fillStyle = 'rgba(252,242,220,0.95)';
-    for (let i = 0; i < 90; i++) { const a = Math.random() * 6.283, r = 102 + Math.random() * 22;
-      g.beginPath(); g.arc(128 + Math.cos(a) * r, 128 + Math.sin(a) * r, 1.6 + Math.random() * 3.4, 0, 6.283); g.fill(); }
-    g.fillStyle = 'rgba(190,130,70,0.5)';
-    for (let i = 0; i < 40; i++) { const a = Math.random() * 6.283, r = 104 + Math.random() * 18;
-      g.beginPath(); g.arc(128 + Math.cos(a) * r, 128 + Math.sin(a) * r, 1 + Math.random() * 1.8, 0, 6.283); g.fill(); }
+    g.strokeStyle = 'rgba(250,240,218,1)'; g.lineWidth = 26;
+    g.beginPath(); g.arc(128, 128, 111, 0, 6.283); g.stroke();
+    for (let i = 0; i < 110; i++) { const a = Math.random() * 6.283, r = 100 + Math.random() * 24;
+      const x = 128 + Math.cos(a) * r, y = 128 + Math.sin(a) * r, rad = 1.8 + Math.random() * 3.6;
+      g.fillStyle = 'rgba(176,120,58,0.35)'; g.beginPath(); g.arc(x, y + 1, rad, 0, 6.283); g.fill();
+      g.fillStyle = 'rgba(255,252,244,0.98)'; g.beginPath(); g.arc(x, y, rad, 0, 6.283); g.fill(); }
     for (let i = 0; i < 22; i++) { g.beginPath(); g.arc(40 + Math.random() * 176, 40 + Math.random() * 176, 1 + Math.random() * 1.8, 0, 6.283); g.fill(); }
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
   }
@@ -170,7 +174,7 @@ export function createCupScene(canvas, opts = {}) {
     [0.0, 0.1], [0.252, 0.1], [0.278, 0.128], [0.296, 0.34], [0.318, 0.58],
     [0.352, 0.78], [0.362, 0.812], [0.35, 0.822], [0.33, 0.792],
     [0.3, 0.56], [0.272, 0.3], [0.238, 0.158], [0.0, 0.148]
-  ]), 0.028), glass);
+   ]), 0.05), glass);
   tumbler.renderOrder = 4;
   spin.add(tumbler);
   const lip = new THREE.Mesh(new THREE.TorusGeometry(0.356, 0.011, 12, 128), glassEdge);

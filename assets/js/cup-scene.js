@@ -92,16 +92,16 @@ export function createCupScene(canvas, opts = {}) {
     const c = document.createElement('canvas'); c.width = 64; c.height = 256;
     const g = c.getContext('2d');
     const gr = g.createLinearGradient(0, 256, 0, 0);
-    gr.addColorStop(0, '#4a1e04'); gr.addColorStop(0.45, '#8a3f08');
-    gr.addColorStop(0.8, '#c06a12'); gr.addColorStop(1, '#e79a33');
+    gr.addColorStop(0, '#8a4d20'); gr.addColorStop(0.45, '#b57a3e');
+    gr.addColorStop(0.8, '#d29c5c'); gr.addColorStop(1, '#e6ba82');
     g.fillStyle = gr; g.fillRect(0, 0, 64, 256);
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
   }
-  const tea = new THREE.Mesh(lathe([
+  const tea = new THREE.Mesh(flute(lathe([
     [0.0, 0.16], [0.225, 0.16], [0.25, 0.2], [0.272, 0.42], [0.295, 0.62], [0.322, 0.74], [0.0, 0.74]
-  ]), new THREE.MeshPhysicalMaterial({
-    map: teaTexture(), roughness: 0.08, metalness: 0,
-    clearcoat: 1, clearcoatRoughness: 0.08, envMapIntensity: 1.1
+  ]), 0.02), new THREE.MeshPhysicalMaterial({
+    map: teaTexture(), roughness: 0.34, metalness: 0,
+    clearcoat: 0.35, clearcoatRoughness: 0.25, envMapIntensity: 0.7
   }));
   tea.renderOrder = 1;
   spin.add(tea);
@@ -110,26 +110,31 @@ export function createCupScene(canvas, opts = {}) {
     const c = document.createElement('canvas'); c.width = c.height = 256;
     const g = c.getContext('2d');
     const gr = g.createRadialGradient(108, 108, 10, 128, 128, 128);
-    gr.addColorStop(0, '#eda83e'); gr.addColorStop(0.7, '#cf7716'); gr.addColorStop(1, '#a3540a');
+    gr.addColorStop(0, '#eec894'); gr.addColorStop(0.7, '#dfae72'); gr.addColorStop(1, '#cf9455');
     g.fillStyle = gr; g.fillRect(0, 0, 256, 256);
-    g.fillStyle = 'rgba(255,230,180,0.75)';
-    for (let i = 0; i < 46; i++) { const a = Math.random() * 6.283, r = 104 + Math.random() * 18;
-      g.beginPath(); g.arc(128 + Math.cos(a) * r, 128 + Math.sin(a) * r, 1.5 + Math.random() * 2.6, 0, 6.283); g.fill(); }
+    g.strokeStyle = 'rgba(247,232,203,0.9)'; g.lineWidth = 17;
+    g.beginPath(); g.arc(128, 128, 112, 0, 6.283); g.stroke();
+    g.fillStyle = 'rgba(252,242,220,0.95)';
+    for (let i = 0; i < 90; i++) { const a = Math.random() * 6.283, r = 102 + Math.random() * 22;
+      g.beginPath(); g.arc(128 + Math.cos(a) * r, 128 + Math.sin(a) * r, 1.6 + Math.random() * 3.4, 0, 6.283); g.fill(); }
+    g.fillStyle = 'rgba(190,130,70,0.5)';
+    for (let i = 0; i < 40; i++) { const a = Math.random() * 6.283, r = 104 + Math.random() * 18;
+      g.beginPath(); g.arc(128 + Math.cos(a) * r, 128 + Math.sin(a) * r, 1 + Math.random() * 1.8, 0, 6.283); g.fill(); }
     for (let i = 0; i < 22; i++) { g.beginPath(); g.arc(40 + Math.random() * 176, 40 + Math.random() * 176, 1 + Math.random() * 1.8, 0, 6.283); g.fill(); }
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
   }
   const teaTop = new THREE.Mesh(
     new THREE.CircleGeometry(0.322, 64),
-    new THREE.MeshPhysicalMaterial({ map: teaTopTexture(), roughness: 0.06, clearcoat: 1, envMapIntensity: 1.5 })
+    new THREE.MeshPhysicalMaterial({ map: teaTopTexture(), roughness: 0.32, clearcoat: 0.4, envMapIntensity: 0.8 })
   );
   /* golden meniscus ring where tea meets glass */
   const meniscus = new THREE.Mesh(new THREE.TorusGeometry(0.318, 0.007, 10, 96),
-    new THREE.MeshPhysicalMaterial({ color: 0xe79a33, roughness: 0.1, clearcoat: 1 }));
+    new THREE.MeshPhysicalMaterial({ color: 0xe0aa64, roughness: 0.3, clearcoat: 1 }));
   meniscus.rotation.x = Math.PI / 2; meniscus.position.y = 0.74; meniscus.renderOrder = 2;
   spin.add(meniscus);
   /* tiny bubbles rising in the tea */
   const bubbles = new THREE.InstancedMesh(new THREE.SphereGeometry(0.008, 8, 8),
-    new THREE.MeshBasicMaterial({ color: 0xffe2b0, transparent: true, opacity: 0.4 }), 36);
+    new THREE.MeshBasicMaterial({ color: 0xf7e3c0, transparent: true, opacity: 0.32 }), 36);
   { const d = new THREE.Object3D();
     for (let i = 0; i < 36; i++) { const a = Math.random() * 6.283, r = Math.random() * 0.24;
       d.position.set(Math.cos(a) * r, 0.22 + Math.random() * 0.46, Math.sin(a) * r);
@@ -140,17 +145,32 @@ export function createCupScene(canvas, opts = {}) {
   spin.add(teaTop);
   const froth = new THREE.Mesh(
     new THREE.CircleGeometry(0.17, 48),
-    new THREE.MeshStandardMaterial({ color: 0xf3c98a, roughness: 0.55, transparent: true, opacity: 0.5 })
+    new THREE.MeshStandardMaterial({ color: 0xf6e3bb, roughness: 0.6, transparent: true, opacity: 0.55 })
   );
   froth.rotation.x = -Math.PI / 2; froth.position.set(0.05, 0.743, 0.03); froth.renderOrder = 2;
   spin.add(froth);
 
+
+  /* vertical flutes — displace lathe radii with a 12-lobed wave, fading out
+     under the smooth rim band, exactly like a real cutting-chai glass */
+  function flute(geo, amp) {
+    const p = geo.attributes.position;
+    for (let i = 0; i < p.count; i++) {
+      const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+      const r = Math.hypot(x, z); if (r < 0.01) continue;
+      const t = Math.min(1, Math.max(0, (y - 0.12) / 0.5));
+      const w = Math.sin(Math.min(1, t) * Math.PI * 0.5) * (y > 0.62 ? Math.max(0, 1 - (y - 0.62) / 0.12) : 1);
+      const s = 1 + amp * Math.cos(Math.atan2(z, x) * 12) * w;
+      p.setX(i, x * s); p.setZ(i, z * s);
+    }
+    geo.computeVertexNormals(); return geo;
+  }
   /* glass tumbler over the tea — flared cutting-chai glass shape */
-  const tumbler = new THREE.Mesh(lathe([
+  const tumbler = new THREE.Mesh(flute(lathe([
     [0.0, 0.1], [0.252, 0.1], [0.278, 0.128], [0.296, 0.34], [0.318, 0.58],
     [0.352, 0.78], [0.362, 0.812], [0.35, 0.822], [0.33, 0.792],
     [0.3, 0.56], [0.272, 0.3], [0.238, 0.158], [0.0, 0.148]
-  ]), glass);
+  ]), 0.028), glass);
   tumbler.renderOrder = 4;
   spin.add(tumbler);
   const lip = new THREE.Mesh(new THREE.TorusGeometry(0.356, 0.011, 12, 128), glassEdge);

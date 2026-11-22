@@ -3,7 +3,7 @@
    colour tint white→green, front/back logo swap, then an exit timeline
    (+180° and offscreen drop from 35%) that ends exactly at formats top.
    A second instance flies through the package section (170°→530°). */
-import { createCupScene } from './cup-scene.js?v=glass12';
+import { createCupScene } from './cup-scene.js?v=glass13';
 
 const gsap = window.gsap;
 const ScrollTrigger = window.ScrollTrigger;

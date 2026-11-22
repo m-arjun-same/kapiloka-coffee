@@ -154,7 +154,7 @@
        lines from yPercent 140, .9s power3.out, stagger .09, start "top 85%";
        exclusions: .formats, .terms, .faq, .modal) ---------- */
     var headingEls = Array.prototype.filter.call(document.querySelectorAll('h1, h2'), function (h) {
-      return !h.closest('.formats, .terms, .faq, .modal');
+      return !h.closest('.formats, .terms, .faq, .modal, .hero');
     });
     var headingTweens = [];
     function splitHeading(el) {

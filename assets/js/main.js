@@ -299,48 +299,6 @@
   }, { threshold: [.45] });
   document.querySelectorAll('[data-benefit]').forEach(function (c) { bObs.observe(c); });
 
-  /* ---------- mobile cup sequence: 60 own-rendered frames, canvas scrub
-     (frame = round(progress × 59), trigger figures "top bottom"→"top top") ---------- */
-  var seqCanvas = document.getElementById('cupSeq');
-  window.__seqProbe = function () { return null; };
-  if (seqCanvas && window.innerWidth < 768 && hasGsap && typeof window.ScrollTrigger !== 'undefined'
-      && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    var seqFrames = new Array(60), seqLastProgress = 0, seqDrawn = -1;
-    var seqCtx = seqCanvas.getContext('2d');
-    var seqState = { progress: 0, frame: 0, drawn: -1 };
-    function seqDraw(p) {
-      seqLastProgress = p;
-      var idx = Math.round(p * 59);
-      seqState.progress = p; seqState.frame = idx;
-      for (var t = 0; t < 60; t++) {
-        var cand = seqFrames[idx - t] ? idx - t : (seqFrames[idx + t] ? idx + t : -1);
-        if (cand >= 0) {
-          if (cand !== seqDrawn) {
-            seqDrawn = cand; seqState.drawn = cand;
-            seqCtx.clearRect(0, 0, 480, 625);
-            seqCtx.drawImage(seqFrames[cand], 0, 0, 480, 625);
-          }
-          break;
-        }
-      }
-    }
-    function seqLoad(i, priority) {
-      var im = new Image();
-      try { im.fetchPriority = priority; } catch (e) {}
-      im.onload = function () { seqFrames[i] = im; seqDraw(seqLastProgress); };
-      im.src = 'assets/img/cup-frames/' + String(i).padStart(3, '0') + '.webp';
-    }
-    seqLoad(0, 'high');
-    for (var si = 1; si < 60; si++) seqLoad(si, 'low');
-    ScrollTrigger.create({
-      trigger: '.figures', start: 'top bottom', end: 'top top', scrub: true,
-      onUpdate: function (self) { seqDraw(self.progress); },
-      onRefresh: function (self) { seqDraw(self.progress); }
-    });
-    seqDraw(0);
-    window.__seqProbe = function () { return { progress: seqState.progress, frame: seqState.frame, drawn: seqState.drawn }; };
-  }
-
   /* ---------- digital phone video: IO autoplay (rootMargin 200px), replay on pause ---------- */
   var dVideo = document.querySelector('[data-inside-video]');
   if (dVideo) {

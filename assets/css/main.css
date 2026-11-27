@@ -275,9 +275,6 @@ body.menu-open .header{color:var(--black)}
 .footer__base a{color:var(--ivory);text-decoration:none}
 .footer__base a:hover{color:var(--salmon)}
 
-/* crimson block-swipe reveal (text-15, own code) */
-.kl-swipe{position:relative}
-.kl-swipe__block{position:absolute;inset:-0.08em 0;background:#D71927;transform:scaleX(0);z-index:3;pointer-events:none}
 /* video tour play/pause toggle */
 .phone__toggle{position:absolute;right:20px;bottom:20px;z-index:3;width:48px;height:48px;border-radius:50%;border:0;background:#D71927;color:#fff;font-size:17px;cursor:pointer;display:grid;place-items:center;box-shadow:0 10px 24px rgba(215,25,39,.45)}
 .phone__toggle:hover{background:#A8121E}

@@ -280,7 +280,7 @@
 
     /* ---------- motion upgrade (component-upgrade skill, own code) ----------
        scroll-5: hero photo drift + parallax, slogan word-wipe scrub.
-       text-15: crimson block-swipe on hero title + terms heading.
+       hero title + terms heading: clean fade-up reveal (red block removed 2026-11-27, buddy's call).
        Benefit photos: clip reveal + settle. Reduced-motion: all skipped. */
     var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (!reducedMotion) {
@@ -318,17 +318,8 @@
         if (sWords.length) gsap.fromTo(sWords, { opacity: 0.12 }, { opacity: 1, stagger: 0.12, ease: 'none', scrollTrigger: { trigger: '.slogan', start: 'top 85%', end: 'top 35%', scrub: true } });
       }
       function swipeReveal(el) {
-        el.classList.add('kl-swipe');
-        var block = document.createElement('span');
-        block.className = 'kl-swipe__block'; block.setAttribute('aria-hidden', 'true');
-        el.appendChild(block);
-        gsap.set(el, { autoAlpha: 0 });
-        gsap.set(block, { scaleX: 0, transformOrigin: 'left center' });
         var tl = gsap.timeline({ paused: true });
-        tl.to(block, { scaleX: 1, duration: 0.65, ease: 'expo.inOut' })
-          .set(el, { autoAlpha: 1 })
-          .to(block, { scaleX: 0, transformOrigin: 'right center', duration: 0.65, ease: 'expo.inOut' }, '+=0.25')
-          .set(block, { display: 'none' });
+        tl.fromTo(el, { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: 'expo.out' });
         return tl;
       }
       var heroTitle = document.querySelector('.hero__title');

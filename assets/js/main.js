@@ -253,6 +253,8 @@
           var rev = slide.querySelector('.format-slide__reveal');
           ftl.fromTo(slide, { yPercent: 100 }, { yPercent: 0, duration: 1, ease: 'none' }, i - 1);
           if (rev) ftl.fromTo(rev, { yPercent: -100 }, { yPercent: 0, duration: 1, ease: 'none' }, i - 1);
+          var simg = slide.querySelector('.format-slide__img img');
+          if (simg) ftl.fromTo(simg, { scale: 1.18, xPercent: -3 }, { scale: 1.02, xPercent: 3, duration: 1, ease: 'none' }, i - 1);
         });
       }
     }
@@ -275,6 +277,79 @@
       });
       return function () { tweens.forEach(function (t) { if (t.scrollTrigger) t.scrollTrigger.kill(); t.kill(); }); };
     });
+
+    /* ---------- motion upgrade (component-upgrade skill, own code) ----------
+       scroll-5: hero photo drift + parallax, slogan word-wipe scrub.
+       text-15: crimson block-swipe on hero title + terms heading.
+       Benefit photos: clip reveal + settle. Reduced-motion: all skipped. */
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reducedMotion) {
+      var heroEl = document.querySelector('.hero');
+      var heroPhoto = document.querySelector('.hero__photo');
+      var heroCopy = document.querySelector('.hero__copy');
+      if (heroEl) {
+        if (heroPhoto) {
+          gsap.to(heroPhoto, { yPercent: 12, ease: 'none', scrollTrigger: { trigger: heroEl, start: 'top top', end: 'bottom top', scrub: true } });
+          gsap.to(heroPhoto, { y: 9, rotation: 0.5, duration: 3.4, yoyo: true, repeat: -1, ease: 'sine.inOut' });
+        }
+        if (heroCopy) gsap.to(heroCopy, { opacity: 0, y: -56, ease: 'none', scrollTrigger: { trigger: heroEl, start: 'top top', end: '55% top', scrub: true } });
+      }
+      document.querySelectorAll('.benefit').forEach(function (card) {
+        var wrap = card.querySelector('.benefit__img');
+        var img = wrap && wrap.querySelector('img');
+        if (!wrap) return;
+        var btl = gsap.timeline({ scrollTrigger: { trigger: card, start: 'top 88%', once: true } });
+        btl.fromTo(wrap, { clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)', duration: 1, ease: 'expo.out' }, 0);
+        if (img) btl.fromTo(img, { scale: 1.18 }, { scale: 1, duration: 1.1, ease: 'expo.out' }, 0);
+      });
+      var sloganP = document.querySelector('.slogan p');
+      if (sloganP) {
+        var sWords = [];
+        Array.prototype.slice.call(sloganP.childNodes).forEach(function (n) {
+          if (n.nodeType === 3) {
+            n.textContent.split(/(\s+)/).forEach(function (part) {
+              if (!part) return;
+              if (/^\s+$/.test(part)) { sloganP.insertBefore(document.createTextNode(' '), n); }
+              else { var s = document.createElement('span'); s.textContent = part; sloganP.insertBefore(s, n); sWords.push(s); }
+            });
+            sloganP.removeChild(n);
+          }
+        });
+        if (sWords.length) gsap.fromTo(sWords, { opacity: 0.12 }, { opacity: 1, stagger: 0.05, ease: 'none', scrollTrigger: { trigger: '.slogan', start: 'top 85%', end: 'bottom 55%', scrub: true } });
+      }
+      function swipeReveal(el) {
+        el.classList.add('kl-swipe');
+        var block = document.createElement('span');
+        block.className = 'kl-swipe__block'; block.setAttribute('aria-hidden', 'true');
+        el.appendChild(block);
+        gsap.set(el, { autoAlpha: 0 });
+        gsap.set(block, { scaleX: 0, transformOrigin: 'left center' });
+        var tl = gsap.timeline({ paused: true });
+        tl.to(block, { scaleX: 1, duration: 0.5, ease: 'expo.inOut' })
+          .set(el, { autoAlpha: 1 })
+          .to(block, { scaleX: 0, transformOrigin: 'right center', duration: 0.5, ease: 'expo.inOut' }, '+=0.18')
+          .set(block, { display: 'none' });
+        return tl;
+      }
+      var heroTitle = document.querySelector('.hero__title');
+      if (heroTitle) {
+        var heroTl = swipeReveal(heroTitle);
+        var playHero = function () { heroTl.play(0); };
+        if (document.documentElement.classList.contains('is-loaded')) playHero();
+        else {
+          var hmo = new MutationObserver(function () {
+            if (document.documentElement.classList.contains('is-loaded')) { hmo.disconnect(); playHero(); }
+          });
+          hmo.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+          setTimeout(function () { hmo.disconnect(); playHero(); }, 4000);
+        }
+      }
+      var termsH2 = document.querySelector('.terms .h2');
+      if (termsH2) {
+        var termsTl = swipeReveal(termsH2);
+        ScrollTrigger.create({ trigger: termsH2, start: 'top 85%', once: true, onEnter: function () { termsTl.play(0); } });
+      }
+    }
 
   } else {
     /* fallback: IntersectionObserver reveals */
@@ -302,15 +377,34 @@
   /* ---------- digital phone video: IO autoplay (rootMargin 200px), replay on pause ---------- */
   var dVideo = document.querySelector('[data-inside-video]');
   if (dVideo) {
+    var userPaused = false;
     var playIt = function () {
+      if (userPaused) return;
       if (!dVideo.getAttribute('src')) dVideo.src = dVideo.getAttribute('data-src');
       if (dVideo.paused) { var pr = dVideo.play(); if (pr) pr.catch(function () {}); }
     };
     new IntersectionObserver(function (entries) {
       if (entries.some(function (e) { return e.isIntersecting; })) playIt();
     }, { rootMargin: '200px 0px' }).observe(dVideo);
-    dVideo.addEventListener('pause', function () { setTimeout(playIt, 60); });
+    dVideo.addEventListener('pause', function () { setTimeout(function () { if (!userPaused) playIt(); }, 60); });
     document.addEventListener('visibilitychange', function () { if (!document.hidden) playIt(); });
+    /* play/pause toggle on the phone: user pause sticks (no auto-replay) */
+    var vToggle = document.querySelector('[data-video-toggle]');
+    if (vToggle) {
+      var syncToggle = function () {
+        var playing = !dVideo.paused;
+        vToggle.textContent = playing ? '❚❚' : '▶';
+        vToggle.setAttribute('aria-label', playing ? 'Pause video tour' : 'Play video tour');
+      };
+      vToggle.addEventListener('click', function () {
+        if (dVideo.paused) { userPaused = false; playIt(); }
+        else { userPaused = true; dVideo.pause(); }
+        syncToggle();
+      });
+      dVideo.addEventListener('play', syncToggle);
+      dVideo.addEventListener('pause', syncToggle);
+      syncToggle();
+    }
   }
   /* .is-ending: benefits entering fades the inside content out */
   var dWrap = document.querySelector('[data-digital]');

@@ -317,14 +317,14 @@
         });
         if (sWords.length) gsap.fromTo(sWords, { opacity: 0.12 }, { opacity: 1, stagger: 0.12, ease: 'none', scrollTrigger: { trigger: '.slogan', start: 'top 85%', end: 'top 35%', scrub: true } });
       }
-      function swipeReveal(el) {
+      function fadeReveal(el) {
         var tl = gsap.timeline({ paused: true });
         tl.fromTo(el, { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: 'expo.out' });
         return tl;
       }
       var heroTitle = document.querySelector('.hero__title');
       if (heroTitle) {
-        var heroTl = swipeReveal(heroTitle);
+        var heroTl = fadeReveal(heroTitle);
         var playHero = function () { heroTl.play(0); };
         if (document.documentElement.classList.contains('is-loaded')) playHero();
         else {
@@ -337,7 +337,7 @@
       }
       var termsH2 = document.querySelector('.terms .h2');
       if (termsH2) {
-        var termsTl = swipeReveal(termsH2);
+        var termsTl = fadeReveal(termsH2);
         ScrollTrigger.create({ trigger: termsH2, start: 'top 90%', toggleActions: 'play none none reverse', onEnter: function () { termsTl.play(0); }, onLeaveBack: function () { termsTl.reverse(); } });
       }
     }

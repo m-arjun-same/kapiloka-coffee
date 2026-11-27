@@ -298,9 +298,9 @@
         var wrap = card.querySelector('.benefit__img');
         var img = wrap && wrap.querySelector('img');
         if (!wrap) return;
-        var btl = gsap.timeline({ scrollTrigger: { trigger: card, start: 'top 88%', once: true } });
-        btl.fromTo(wrap, { clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)', duration: 1, ease: 'expo.out' }, 0);
-        if (img) btl.fromTo(img, { scale: 1.18 }, { scale: 1, duration: 1.1, ease: 'expo.out' }, 0);
+        var btl = gsap.timeline({ scrollTrigger: { trigger: card, start: 'top 75%', toggleActions: 'play none none reverse' } });
+        btl.fromTo(wrap, { clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)', duration: 1.1, ease: 'expo.out' }, 0);
+        if (img) btl.fromTo(img, { scale: 1.18 }, { scale: 1, duration: 1.2, ease: 'expo.out' }, 0);
       });
       var sloganP = document.querySelector('.slogan p');
       if (sloganP) {
@@ -315,7 +315,7 @@
             sloganP.removeChild(n);
           }
         });
-        if (sWords.length) gsap.fromTo(sWords, { opacity: 0.12 }, { opacity: 1, stagger: 0.05, ease: 'none', scrollTrigger: { trigger: '.slogan', start: 'top 85%', end: 'bottom 55%', scrub: true } });
+        if (sWords.length) gsap.fromTo(sWords, { opacity: 0.12 }, { opacity: 1, stagger: 0.12, ease: 'none', scrollTrigger: { trigger: '.slogan', start: 'top 85%', end: 'top 35%', scrub: true } });
       }
       function swipeReveal(el) {
         el.classList.add('kl-swipe');
@@ -325,9 +325,9 @@
         gsap.set(el, { autoAlpha: 0 });
         gsap.set(block, { scaleX: 0, transformOrigin: 'left center' });
         var tl = gsap.timeline({ paused: true });
-        tl.to(block, { scaleX: 1, duration: 0.5, ease: 'expo.inOut' })
+        tl.to(block, { scaleX: 1, duration: 0.65, ease: 'expo.inOut' })
           .set(el, { autoAlpha: 1 })
-          .to(block, { scaleX: 0, transformOrigin: 'right center', duration: 0.5, ease: 'expo.inOut' }, '+=0.18')
+          .to(block, { scaleX: 0, transformOrigin: 'right center', duration: 0.65, ease: 'expo.inOut' }, '+=0.25')
           .set(block, { display: 'none' });
         return tl;
       }
@@ -347,7 +347,7 @@
       var termsH2 = document.querySelector('.terms .h2');
       if (termsH2) {
         var termsTl = swipeReveal(termsH2);
-        ScrollTrigger.create({ trigger: termsH2, start: 'top 85%', once: true, onEnter: function () { termsTl.play(0); } });
+        ScrollTrigger.create({ trigger: termsH2, start: 'top 90%', toggleActions: 'play none none reverse', onEnter: function () { termsTl.play(0); }, onLeaveBack: function () { termsTl.reverse(); } });
       }
     }
 

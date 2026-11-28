@@ -90,6 +90,18 @@ body.menu-open .header{color:var(--black)}
 .hero__photo figcaption strong{font-family:var(--font-accent);font-size:15px;white-space:nowrap}
 .hero__photo figcaption span{font-size:13px;opacity:.85;white-space:nowrap}
 @media(max-width:560px){.hero__photo figcaption{left:10px;bottom:10px;flex-direction:column;gap:0;border-radius:16px}}
+/* mobile hero: fit the photo into the first screen (was pushed below the fold) */
+@media(max-width:1023.98px){
+  .hero{padding:112px 0 92px;min-height:0}
+  .hero__title{margin-bottom:16px}
+  .hero__sans{font-size:clamp(3.4rem,16.5vw,4.5rem)}
+  .hero__script{font-size:clamp(3.2rem,15.5vw,4.2rem)}
+  .hero__para{margin-bottom:20px}
+  .hero__row{gap:20px 32px}
+  .hero__points{flex-wrap:nowrap;gap:24px;max-width:none}
+  .hero__points li{flex:1;max-width:none}
+  .hero__photo{margin-top:22px}
+}
 .hero__points{max-width:520px}
 .hero__cloud{position:absolute;border-radius:999px;background:#D6EEF5;filter:blur(38px);opacity:.55;pointer-events:none;animation:cloudDrift 14s ease-in-out infinite alternate}
 @keyframes cloudDrift{from{transform:translateX(-24px)}to{transform:translateX(24px)}}
